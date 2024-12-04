@@ -16,10 +16,16 @@ public class PlayerManager : MonoBehaviour
     public Tilemap currentGroundMap = new Tilemap();    // The base tilemap
     public Tilemap currentTopMap = new Tilemap();
 
-    public Tilemap CurrentGroundMap => currentGroundMap;
-
     public TileBase dungeonDoor1;
     public TileBase dungeonDoor2;
+    public TileBase chestTile;
+    
+    public TMPro.TextMeshProUGUI winText;
+
+    public GameObject ghost1;
+    public GameObject ghost2;
+    public GameObject ghost3;
+    
     public float moveDelay = 0.5f;  // Delay between moves
     
 
@@ -62,6 +68,14 @@ public class PlayerManager : MonoBehaviour
                 
                 currentGroundMap = dungeonGroundMap;
                 currentTopMap = dungeonTopMap;
+                
+                ghost1.gameObject.SetActive(true);
+                ghost2.gameObject.SetActive(true);
+                ghost3.gameObject.SetActive(true);
+            }
+            else if (newTile == chestTile) {
+                gameObject.SetActive(false);
+                winText.gameObject.SetActive(true);
             }
             
             
