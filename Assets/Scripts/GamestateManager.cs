@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GamestateManager : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class GamestateManager : MonoBehaviour
         // EnemyTurn,
         Waiting
     };
+
 
     GameState currentState = GameState.PlayerTurn;
 

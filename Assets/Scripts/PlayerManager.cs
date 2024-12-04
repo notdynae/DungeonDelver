@@ -2,17 +2,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.SceneManagement;
 
 public class PlayerManager : MonoBehaviour
 {
-    public HealthSystem healthSystem = new HealthSystem();
+    public HealthSystem healthSystem;
     
-    public Tilemap baseTilemap;      // The base tilemap
-    public Tilemap topLayerTilemap; // The tilemap with obstacles
-    public float moveDelay = 0.5f;  // Delay between moves
+    // public Tilemap overworldGroundMap;// The tilemap with obstacles
+    // public Tilemap overworldTopMap;// The tilemap with obstacles
+    public Tilemap dungeonGroundMap;// The tilemap with obstacles
+    public Tilemap dungeonTopMap;// The tilemap with obstacles
 
-    private bool isMoving = false;  // Prevent input during movement
-    // GamestateManager.GameState currentState;
+    public Tilemap currentGroundMap = new Tilemap();    // The base tilemap
+    public Tilemap currentTopMap = new Tilemap();
+
+    public Tilemap CurrentGroundMap => currentGroundMap;
+
+    public TileBase dungeonDoor1;
+    public TileBase dungeonDoor2;
+    public float moveDelay = 0.5f;  // Delay between moves
+    
 
     void Update() {
         
@@ -29,28 +38,40 @@ public class PlayerManager : MonoBehaviour
     }
 
     private IEnumerator TryMove(Vector3Int direction) {
-        isMoving = true;
-
+        
         // Get current and target positions
-        Vector3Int currentTile = baseTilemap.WorldToCell(transform.position);
+        Vector3Int currentTile = currentGroundMap.WorldToCell(transform.position);
         Vector3Int targetTile = currentTile + direction;
 
         // Check if target tile is walkable
         if (IsTileWalkable(targetTile - new Vector3Int(0, 1, 0))) {
+            
             // Move character
-            Vector3 targetPosition = baseTilemap.GetCellCenterWorld(targetTile - new Vector3Int(0, 1, 0));
+            Vector3 targetPosition = currentGroundMap.GetCellCenterWorld(targetTile - new Vector3Int(0, 1, 0));
             transform.position = targetPosition - new Vector3Int(0, 0, 1);
 
-            // Switch to enemy turn or other game logic
+            // change to dungeon map
+            TileBase newTile = currentGroundMap.GetTile(currentGroundMap.WorldToCell(transform.position)- new Vector3Int(0, 1, 0));
+            if (newTile == dungeonDoor1 || newTile == dungeonDoor2) {
+                // SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+                
+                currentGroundMap.gameObject.SetActive(false);
+                currentTopMap.gameObject.SetActive(false);
+                dungeonGroundMap.gameObject.SetActive(true);
+                dungeonTopMap.gameObject.SetActive(true);
+                
+                currentGroundMap = dungeonGroundMap;
+                currentTopMap = dungeonTopMap;
+            }
+            
+            
+            
             yield return new WaitForSeconds(moveDelay);
-            // currentState = GamestateManager.GameState.EnemyTurn;
         }
-
-        isMoving = false;
     }
 
     private bool IsTileWalkable(Vector3Int tilePosition) {
         // Ensure the tile exists in the base tilemap and is not occupied in the top layer
-        return baseTilemap.HasTile(tilePosition) && !topLayerTilemap.HasTile(tilePosition);
+        return currentGroundMap.HasTile(tilePosition) && !currentTopMap.HasTile(tilePosition);
     }
 }
